@@ -1,7 +1,8 @@
 import http from "http";
-import WebSocket from "ws";
+//import WebSocket from "ws";
 import express from "express";
 import { Socket } from "dgram";
+import SocketIO from "socket.io";
 
 const app = express();
 
@@ -18,22 +19,43 @@ const handleListen = () => console.log("listening on http:localhost:3001!");
 
 //app.listen(3000, handleListen);
 
-const server = http.createServer(app);
+const httpServer = http.createServer(app);
+const wsServer = SocketIO(httpServer);
 
-const wss = new WebSocket.Server({ server });
+wsServer.on("connection", (socket) => {
+  console.log(socket);
+});
 
+/*
 const sockets = [];
 
 wss.on("connection", (bsocket) => {
   sockets.push(bsocket);
+  bsocket["nickname"] = "Anon";
   console.log("Connected to Browser ");
   bsocket.on("close", () => {
     console.log("Disconnected from the Browser");
   });
-  bsocket.on("message", (message) => {
-    sockets.forEach((aSocket) => aSocket.send(message.toString()));
-    console.log(message.toString());
+  bsocket.on("message", (msg) => {
+    const message = JSON.parse(msg);
+    console.log(message);
+
+    switch (message.type) {
+      case "new_message": {
+        sockets.forEach((aSocket) =>
+          aSocket.send(`${bsocket.nickname}: ${message.payload}`)
+        );
+        break;
+      }
+
+      case "nickname": {
+        console.log(message.type);
+        console.log("nickname " + message.payload);
+        bsocket["nickname"] = message.payload;
+        break;
+      }
+    }
   });
 });
-
-server.listen(3001, handleListen);
+*/
+httpServer.listen(3001, handleListen);
