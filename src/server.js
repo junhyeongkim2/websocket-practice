@@ -24,6 +24,12 @@ const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", (socket) => {
   console.log(socket);
+  socket.on("enter_room", (roomName, done) => {
+    console.log(roomName);
+    setTimeout(() => {
+      done("this is from backend");
+    }, 1000);
+  });
 });
 
 /*
